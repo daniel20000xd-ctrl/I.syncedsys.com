@@ -37,6 +37,17 @@ export async function middleware(req: NextRequest) {
 
   if (isPublicRoute) return res
 
+  // Allow server-to-server API calls (MCP) authenticated with a bearer token.
+  // Scoped to /api/ only — UI pages still require the admin session.
+  const authHeader = req.headers.get('authorization')
+  if (
+    req.nextUrl.pathname.startsWith('/api/') &&
+    authHeader?.startsWith('Bearer ') &&
+    authHeader.slice(7) === process.env.MCP_SECRET
+  ) {
+    return res
+  }
+
   if (!user) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
