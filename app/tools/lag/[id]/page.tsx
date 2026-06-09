@@ -17,6 +17,15 @@ function formatDate(d: string | null) {
   return d.slice(0, 10)
 }
 
+function formatLagrum(item: unknown): string {
+  if (typeof item === 'string') return item
+  if (item && typeof item === 'object') {
+    const o = item as { referens?: string; sfsNummer?: string }
+    return [o.referens, o.sfsNummer].filter(Boolean).join(' · ')
+  }
+  return String(item)
+}
+
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   if (!value) return null
   return (
@@ -77,7 +86,7 @@ export default async function CaseDetailPage({
 
         <div>
           <dt className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Lagrum</dt>
-          <dd><Tags items={c.lagrum ?? []} /></dd>
+          <dd><Tags items={(c.lagrum ?? []).map(formatLagrum)} /></dd>
         </div>
 
         <div>

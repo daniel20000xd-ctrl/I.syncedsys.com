@@ -19,6 +19,15 @@ function asList(v: unknown): string[] {
   return []
 }
 
+function formatLagrum(item: unknown): string {
+  if (typeof item === 'string') return item
+  if (item && typeof item === 'object') {
+    const o = item as { referens?: string; sfsNummer?: string }
+    return [o.referens, o.sfsNummer].filter(Boolean).join(' · ')
+  }
+  return String(item)
+}
+
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   if (!value) return null
   return (
@@ -119,7 +128,8 @@ export default function ResearchRecordPage() {
   const structural: StructuralTag[] = Array.isArray(r.structural_tags) ? r.structural_tags : []
   const derived: DerivedTag[] = Array.isArray(r.derived_tags) ? r.derived_tags : []
   const sourceUrl = asText(r.source_url)
-  const lagrum = asList(r['lagrum'])
+  const rawLagrum = r['lagrum']
+  const lagrum = Array.isArray(rawLagrum) ? rawLagrum.map(formatLagrum) : []
   const sokord = asList(r['sokord'])
 
   return (
