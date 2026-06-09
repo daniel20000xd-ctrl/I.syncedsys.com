@@ -9,7 +9,7 @@ export async function GET() {
     const { data, error } = await researchDb
       .from('research_domains')
       .select(
-        'domain_key, display_name, record_count, last_ingested_at, last_enriched_at, last_connected_at'
+        'domain_key, display_name, record_count, enrichment_context, structural_tag_categories, last_ingested_at, last_enriched_at, last_connected_at'
       )
       .order('domain_key', { ascending: true })
 

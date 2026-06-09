@@ -29,6 +29,7 @@ export async function GET(
     const structuralTag = searchParams.get('structural_tag')?.trim() || ''
     const derivedTag = searchParams.get('derived_tag')?.trim() || ''
     const conceptId = searchParams.get('concept_id')?.trim() || ''
+    const notConceptId = searchParams.get('not_concept_id')?.trim() || ''
     const phase2Status = searchParams.get('phase2_status')?.trim() || ''
     const dateFrom = searchParams.get('date_from')?.trim() || ''
     const dateTo = searchParams.get('date_to')?.trim() || ''
@@ -55,6 +56,10 @@ export async function GET(
     }
     if (conceptId) {
       query = query.contains('derived_tags', JSON.stringify([{ concept_id: conceptId }]))
+    }
+    if (notConceptId) {
+      // Phase 3 batching: only records NOT yet searched for this concept.
+      query = query.not('phase3_concept_ids', 'cs', JSON.stringify([notConceptId]))
     }
     if (phase2Status) query = query.eq('phase2_status', phase2Status)
     if (dateFrom) query = query.gte('record_date', dateFrom)

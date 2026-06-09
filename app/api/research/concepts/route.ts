@@ -28,3 +28,31 @@ export async function GET(req: Request) {
     return Response.json({ error: message }, { status: 500 })
   }
 }
+
+// POST /api/research/concepts — create or update a concept by unique name.
+// Claude calls this before a connection batch to obtain the concept_id.
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const name = typeof body?.name === 'string' ? body.name.trim() : ''
+    const description = typeof body?.description === 'string' ? body.description : ''
+
+    if (!name) {
+      return Response.json({ error: 'name is required' }, { status: 400 })
+    }
+
+    // Upsert on the unique `name`: insert new, or update description if it exists.
+    const { data, error } = await researchDb
+      .from('concepts')
+      .upsert({ name, description }, { onConflict: 'name' })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return Response.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return Response.json({ error: message }, { status: 500 })
+  }
+}
