@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   const isPublicRoute =
@@ -29,7 +29,7 @@ export async function middleware(req: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error(
-      'middleware: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are not set'
+      'proxy: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are not set'
     )
     return new NextResponse('Service temporarily unavailable', { status: 503 })
   }
@@ -61,7 +61,7 @@ export async function middleware(req: NextRequest) {
   try {
     getUserResult = await supabase.auth.getUser()
   } catch (err) {
-    console.error('middleware: supabase.auth.getUser() failed', err)
+    console.error('proxy: supabase.auth.getUser() failed', err)
     return new NextResponse('Service temporarily unavailable', { status: 503 })
   }
   const user = getUserResult.data.user
