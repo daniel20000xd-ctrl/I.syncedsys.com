@@ -70,7 +70,12 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
-  if (user.email !== process.env.ADMIN_EMAIL) {
+  // Normalize both sides (trim + lowercase): Supabase lowercases auth emails, but
+  // ADMIN_EMAIL in the Vercel env can carry different casing or a stray space/newline,
+  // and a raw `!==` then rejects the real admin. Mirrors lib/admin.ts isAdminEmail —
+  // the hub already learned this; this proxy hadn't.
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase()
+  if (!adminEmail || user.email?.trim().toLowerCase() !== adminEmail) {
     return NextResponse.redirect(new URL('/not-you', req.url))
   }
 
